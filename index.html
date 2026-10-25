@@ -1,0 +1,120 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SSC Study Zone</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#f1f5f9;color:#172554}
+header{background:#10213a;color:white;text-align:center;padding:25px 10px}
+header h1{margin:0;color:#35c9a0}
+main{max-width:800px;margin:auto;padding:16px}
+.card{background:white;padding:18px;margin:12px 0;border-radius:14px;box-shadow:0 2px 8px #0001}
+button,select,input{padding:12px;border:1px solid #ddd;border-radius:8px;font-size:16px}
+button{background:#087f68;color:white;cursor:pointer;border:0;margin:4px}
+input,select{max-width:100%;box-sizing:border-box}
+.subjects{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.subjects button{min-height:55px}
+#content{line-height:1.8}
+footer{text-align:center;padding:25px;color:#64748b}
+</style>
+</head>
+<body>
+<header>
+<h1>📚 SSC Study Zone</h1>
+<p>Learn • Practice • Succeed</p>
+<p>SSC 2027 | 2028 | 2029 | সকল ব্যাচ</p>
+</header>
+<main>
+<div class="card">
+<h2>তোমার পড়াশোনা শুরু করো!</h2>
+<p>CQ, MCQ ও SQ প্রশ্ন অনুশীলন করো এক জায়গায়।</p>
+<input id="search" placeholder="বিষয় খুঁজুন..." oninput="filterSubjects()">
+</div>
+
+<div class="card">
+<h2>📖 সকল বিষয়</h2>
+<div class="subjects" id="subjects"></div>
+</div>
+
+<div class="card">
+<h2>📝 প্রশ্ন অনুশীলন</h2>
+<select id="kind" onchange="showQuestions()">
+<option value="all">সব প্রশ্ন</option>
+<option value="CQ">CQ — সৃজনশীল</option>
+<option value="MCQ">MCQ — বহুনির্বাচনি</option>
+<option value="SQ">SQ — সংক্ষিপ্ত</option>
+</select>
+<div id="content">প্রথমে একটি বিষয় নির্বাচন করো।</div>
+</div>
+
+<div class="card">
+<h2>🧠 MCQ অনলাইন পরীক্ষা</h2>
+<p id="quizQuestion">পরীক্ষা শুরু করতে নিচে চাপ দাও।</p>
+<div id="quizOptions"></div>
+<button onclick="startQuiz()">পরীক্ষা শুরু</button>
+<p id="result"></p>
+</div>
+</main>
+<footer>
+© SSC Study Zone<br>
+<strong>Made by Shadat Bin Adif</strong>
+</footer>
+
+<script>
+const names=[
+"বাংলা ১ম পত্র","বাংলা ২য় পত্র",
+"English 1st Paper","English 2nd Paper",
+"গণিত","উচ্চতর গণিত","পদার্থবিজ্ঞান",
+"রসায়ন","জীববিজ্ঞান","ICT",
+"বাংলাদেশ ও বিশ্বপরিচয়","ইতিহাস",
+"ভূগোল ও পরিবেশ","অর্থনীতি",
+"পৌরনীতি","হিসাববিজ্ঞান",
+"ব্যবসায় উদ্যোগ","ফিন্যান্স ও ব্যাংকিং",
+"ইসলাম ও নৈতিক শিক্ষা"
+];
+
+let selected="";
+let quizIndex=0,score=0;
+const sample=[
+{subject:"পদার্থবিজ্ঞান",type:"MCQ",chapter:"ভৌত রাশি",q:"দৈর্ঘ্যের SI একক কী?",a:["মিটার","সেকেন্ড","কিলোগ্রাম","অ্যাম্পিয়ার"],correct:0,ans:"দৈর্ঘ্যের SI একক মিটার।"},
+{subject:"রসায়ন",type:"MCQ",chapter:"পদার্থ",q:"পানির সংকেত কোনটি?",a:["CO₂","H₂O","O₂","NaCl"],correct:1,ans:"পানির রাসায়নিক সংকেত H₂O।"},
+{subject:"জীববিজ্ঞান",type:"SQ",chapter:"কোষ",q:"কোষের শক্তিঘর কোনটি?",ans:"মাইটোকন্ড্রিয়া।"},
+{subject:"গণিত",type:"CQ",chapter:"বীজগণিত",q:"দ্বিঘাত সমীকরণের সাধারণ রূপ লেখো।",ans:"ax² + bx + c = 0, যেখানে a ≠ 0।"}
+];
+function filterSubjects(){
+ const s=document.getElementById("search").value.toLowerCase();
+ document.getElementById("subjects").innerHTML=names.filter(n=>n.toLowerCase().includes(s)).map(n=>`<button onclick="choose('${n}')">${n}</button>`).join("");
+}
+function choose(n){selected=n;showQuestions();document.getElementById("content").scrollIntoView({behavior:"smooth"});}
+function showQuestions(){
+ const type=document.getElementById("kind").value;
+ const qs=sample.filter(q=>q.subject===selected&&(type==="all"||q.type===type));
+ document.getElementById("content").innerHTML="<h3>"+(selected||"প্রশ্নসমূহ")+"</h3>"+(qs.map(q=>`<p><b>${q.type} | ${q.chapter}</b><br>${q.q}<br>${q.a?q.a.map((x,i)=>`<br>${"কখগঘ"[i]}. ${x}`).join(""):""}<br><details><summary>উত্তর দেখুন</summary>${q.ans||q.a[q.correct]}</details></p>`).join("")||"এই বিষয়ে নমুনা প্রশ্ন এখনো যোগ করা হয়নি।");
+}
+let quiz=[];
+function startQuiz(){
+ quiz=sample.filter(q=>q.type==="MCQ");quizIndex=0;score=0;
+ document.getElementById("result").textContent="";
+ showQuizQuestion();
+}
+function showQuizQuestion(){
+ if(quizIndex>=quiz.length){
+ document.getElementById("quizQuestion").textContent="পরীক্ষা শেষ!";
+ document.getElementById("quizOptions").innerHTML="";
+ document.getElementById("result").textContent="তোমার নম্বর: "+score+"/"+quiz.length;
+ return;
+ }
+ let q=quiz[quizIndex];
+ document.getElementById("quizQuestion").textContent=(quizIndex+1)+". "+q.q;
+ document.getElementById("quizOptions").innerHTML=q.a.map((a,i)=>`<button onclick="answer(${i})">${"কখগঘ"[i]}. ${a}</button>`).join("");
+}
+function answer(i){
+ if(i===quiz[quizIndex].correct)score++;
+ quizIndex++;showQuizQuestion();
+}
+filterSubjects();
+</script>
+</body>
+</html>
